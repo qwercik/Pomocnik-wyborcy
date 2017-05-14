@@ -1,28 +1,42 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <random>
 
-int main()
+int main(int argc, char* argv[])
 {
-	std::cout << "Wybory tuż, tuż, a ty nadal nie wiesz na kogo głosować?\n";
-	std::string yourCandidate;
-
-	switch(rand() % 11)
+	if (argc != 2)
 	{
-		case 0: yourCandidate = "Janusza Korwina-Mikke"; break;
-		case 1: yourCandidate = "Andrzeja Dudę"; break;
-		case 2: yourCandidate = "Pawła Kukiza"; break;
-		case 3: yourCandidate = "Bronisława Komorowskiego"; break;
-		case 4: yourCandidate = "Magdalenę Ogórek"; break;
-		case 5: yourCandidate = "Janusza Palikota"; break;
-		case 6: yourCandidate = "Grzegorza Brauna"; break;
-		case 7: yourCandidate = "Andrzeja Jarubasa"; break;
-		case 8: yourCandidate = "Pawła Tanajno"; break;
-		case 9: yourCandidate = "Mariana Kowalskiego"; break;
-		case 10: yourCandidate = "Jacka Wilka"; break;
+		std::cerr << "Niepoprawne użycie programu.\n"
+				  << "Użyj: " << argv[0] << " plik_z_kandydatami\n"; 
+		return 1;
 	}
-	
-	yourCandidate = "Eryka Andrzejewskiego"; //Troll ;)
 
-	std::cout << "Głosuj na " << yourCandidate << "! To kandydat twoich marzeń!\n";
+	std::string candidatesFilename = argv[1];	
+
+	std::ifstream file(candidatesFilename);
+	if (!file.is_open())
+	{
+		std::cerr << "Nie udało się wczytać pliku z listą kandydatów (" << candidatesFilename << ").\n";
+		return 1;
+	}	
+	
+	std::vector<std::string> candidatesList;
+	std::string candidate;
+	
+	while (std::getline(file, candidate))
+		candidatesList.push_back(candidate);
+	
+	
+	std::mt19937 rng;
+	rng.seed(std::random_device()());
+	std::uniform_int_distribution<std::mt19937::result_type> dist(0, candidatesList.size() - 1);
+	
+	int randomIndex = dist(rng);
+
+	std::cout << "Wybory tuż, tuż, a ty nadal nie wiesz na kogo głosować?\n";
+	std::cout << "Głosuj na " << candidatesList[randomIndex] << "! To kandydat twoich marzeń!\n";
+
+	return 0;
 } 
